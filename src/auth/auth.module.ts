@@ -16,7 +16,7 @@ import { ConfigType } from '@nestjs/config';
         secret: configService.JWT_SECRET,
         signOptions: { expiresIn: configService.JWT_EXPIRES_IN }
       })
-    })
+    }) // Third party module
   ],
   controllers: [AuthController],
   providers: [AuthService, BcryptService]
