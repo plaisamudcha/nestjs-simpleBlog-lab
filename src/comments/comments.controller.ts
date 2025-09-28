@@ -5,11 +5,6 @@ import { CommentsService } from './comments.service';
 export class CommentsController {
   constructor(private readonly commentsService: CommentsService) {}
 
-  @Post()
-  async createComment() {
-    return await this.commentsService.createComment();
-  }
-
   @Patch(':id')
   async updateComment(@Param('id') id: string) {
     return await this.commentsService.updateComment(id);

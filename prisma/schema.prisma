@@ -1,0 +1,57 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model Users {
+  id       String     @id @default(uuid()) @db.Uuid
+  email    String     @unique
+  password String
+  role     Role       @default(USER)
+  blogs    Blogs[]
+  comments Comments[]
+}
+
+model Blogs {
+  id       String     @id @default(uuid()) @db.Uuid
+  title    String
+  content  String?
+  date     DateTime   @default(now()) @db.Timestamptz(6)
+  users    Users?     @relation(fields: [usersId], references: [id])
+  usersId  String?    @db.Uuid
+  comments Comments[]
+  tags     Tags[]
+}
+
+model Comments {
+  id      String   @id @default(uuid()) @db.Uuid
+  content String
+  date    DateTime @default(now()) @db.Timestamptz(6)
+  blogs   Blogs?   @relation(fields: [blogsId], references: [id])
+  blogsId String?  @db.Uuid
+  users   Users?   @relation(fields: [usersId], references: [id])
+  usersId String?  @db.Uuid
+}
+
+model Tags {
+  id      String  @id @default(uuid()) @db.Uuid
+  name    String
+  Blogs   Blogs?  @relation(fields: [blogsId], references: [id])
+  blogsId String? @db.Uuid
+}
