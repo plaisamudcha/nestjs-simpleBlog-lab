@@ -7,6 +7,8 @@ import { ConfigModule } from '@nestjs/config';
 import { validate } from './config/env.validation';
 import { envConfig, jwtConfig } from './config/env.config';
 import { UsersModule } from './users/users.module';
+import { APP_GUARD } from '@nestjs/core';
+import { AuthGuard } from './auth/auth.guard';
 
 @Module({
   imports: [
@@ -20,6 +22,7 @@ import { UsersModule } from './users/users.module';
       load: [envConfig, jwtConfig]
     }),
     UsersModule
-  ]
+  ],
+  providers: [{ provide: APP_GUARD, useClass: AuthGuard }]
 })
 export class AppModule {}

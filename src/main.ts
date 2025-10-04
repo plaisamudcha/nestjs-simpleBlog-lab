@@ -1,7 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { BadRequestException, ValidationPipe } from '@nestjs/common';
-import fi from 'zod/v4/locales/fi.js';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -24,4 +23,4 @@ async function bootstrap() {
 
   await app.listen(process.env.PORT ?? 3000);
 }
-bootstrap();
+void bootstrap();

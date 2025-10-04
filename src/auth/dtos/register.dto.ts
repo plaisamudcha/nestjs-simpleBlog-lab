@@ -19,6 +19,12 @@ export class RegisterDto {
   @MinLength(6)
   password: string;
 
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(6)
+  // match with password
+  confirmPassword: string;
+
   @IsOptional()
   @IsIn(Object.values(ROLE))
   role?: UserRole = ROLE.USER;

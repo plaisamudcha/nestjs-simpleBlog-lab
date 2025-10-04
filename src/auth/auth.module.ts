@@ -19,6 +19,7 @@ import { ConfigType } from '@nestjs/config';
     }) // Third party module
   ],
   controllers: [AuthController],
-  providers: [AuthService, BcryptService]
+  providers: [AuthService, BcryptService],
+  exports: [JwtModule]
 })
 export class AuthModule {}
