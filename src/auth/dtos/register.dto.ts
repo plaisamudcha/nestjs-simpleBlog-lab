@@ -1,11 +1,13 @@
 import {
   IsEmail,
+  IsIn,
   IsNotEmpty,
   IsOptional,
   IsString,
   MinLength
 } from 'class-validator';
-import { Role } from 'generated/prisma';
+import { ROLE } from 'src/common/constants/role.constant';
+import { type UserRole } from 'src/common/types/role.type';
 
 export class RegisterDto {
   @IsEmail()
@@ -17,7 +19,7 @@ export class RegisterDto {
   @MinLength(6)
   password: string;
 
-  @IsString()
   @IsOptional()
-  role: Role;
+  @IsIn(Object.values(ROLE))
+  role?: UserRole = ROLE.USER;
 }

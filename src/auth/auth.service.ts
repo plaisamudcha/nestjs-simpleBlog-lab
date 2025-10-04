@@ -13,12 +13,20 @@ export class AuthService {
     private readonly jwtService: JwtService
   ) {}
 
-  async register(registerBody: RegisterDto) {
-    const hashedPassword = await this.bcryptService.hash(registerBody.password);
+  async register(registerBody: RegisterDto): Promise<void> {
+    // we not use findEmail because it's chance to race condition
+    // const existingUser = await this.usersService.getUserByEmail(
+    //   registerBody.email
+    // );
 
-    await this.usersService.createUser(registerBody.email, hashedPassword);
+    // if (existingUser) {
+    //   throw new ConflictException('Email already in use');
+    // }
 
-    return { message: 'User registered successfully' };
+    registerBody.password = await this.bcryptService.hash(
+      registerBody.password
+    );
+    await this.usersService.createUser(registerBody);
   }
 
   async login(loginBody: LoginDto) {

@@ -7,9 +7,14 @@ import { LoginDto } from './dtos/login.dto';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  // Best Practices: Do not impleement logic in controllers, delegate to services
+
   @Post('register')
-  async register(@Body() registerBody: RegisterDto) {
-    return await this.authService.register(registerBody);
+  async register(
+    @Body() registerBody: RegisterDto
+  ): Promise<{ message: string }> {
+    await this.authService.register(registerBody);
+    return { message: 'User registered successfully' };
   }
 
   @HttpCode(HttpStatus.OK)

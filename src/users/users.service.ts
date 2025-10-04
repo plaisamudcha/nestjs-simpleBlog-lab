@@ -1,7 +1,7 @@
-import { Injectable } from '@nestjs/common';
-import { Users } from 'generated/prisma';
-import { RegisterDto } from 'src/auth/dtos/register.dto';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/database/prisma.service';
+import { UserCreateInput } from './types/input.type';
+import { PrismaClientKnownRequestError } from 'generated/prisma/runtime/library';
 
 @Injectable()
 export class UsersService {
@@ -11,9 +11,17 @@ export class UsersService {
     return await this.prismaService.users.findUnique({ where: { email } });
   }
 
-  async createUser(email: string, password: string): Promise<Users> {
-    return await this.prismaService.users.create({
-      data: { email, password }
-    });
+  async createUser(data: UserCreateInput): Promise<void> {
+    try {
+      await this.prismaService.users.create({ data });
+    } catch (error) {
+      if (
+        error instanceof PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
+        throw new ConflictException('Email already in use');
+      }
+      throw error;
+    }
   }
 }
