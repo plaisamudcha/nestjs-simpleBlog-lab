@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { BlogsService } from './blogs.service';
 import { CommentsService } from 'src/comments/comments.service';
-import { Public, Roles } from 'src/common/decorators/auth.decorator';
+import { Public, Roles } from 'src/common/decorators/guard.decorator';
 import { RoleGuard } from 'src/auth/role.guard';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 import { CurrentUserDto } from 'src/auth/dtos/current-user.dto';
@@ -49,7 +49,7 @@ export class BlogsController {
   }
 
   @UseGuards(RoleGuard)
-  @Roles('ADMIN', 'USER')
+  @Roles('ADMIN')
   @Post()
   createBlog(
     @CurrentUser() user: CurrentUserDto,

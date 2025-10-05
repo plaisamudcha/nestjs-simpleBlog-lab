@@ -1,14 +1,16 @@
 import {
+  BadRequestException,
   CanActivate,
   ExecutionContext,
   Injectable,
   UnauthorizedException
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { TokenExpiredError } from '@nestjs/jwt';
+import { JsonWebTokenError, TokenExpiredError } from '@nestjs/jwt';
 
 import { Request } from 'express';
 import { JwtService } from './services/jwt.service';
+import { IS_PUBLIC_KEY } from 'src/common/constants/decorator-key';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -18,29 +20,43 @@ export class AuthGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const isPublic = this.reflector.getAllAndOverride<boolean>('isPublic', [
-      context.getHandler(),
-      context.getClass()
-    ]);
+    const isPublic = this.reflector.getAllAndOverride<boolean | undefined>(
+      IS_PUBLIC_KEY,
+      [context.getHandler(), context.getClass()]
+    );
 
     if (isPublic) return true;
 
     const request = context.switchToHttp().getRequest<Request>();
 
-    const authHeader = request.headers.authorization?.split(' ')[1];
+    const authorization = request.headers.authorization;
 
-    if (!authHeader) {
-      throw new UnauthorizedException('token missing');
+    if (!authorization) {
+      throw new BadRequestException('authorization header missing');
+    }
+
+    const [bearer, token] = authorization.split(' ');
+
+    if (bearer !== 'Bearer') {
+      throw new BadRequestException('bad token format');
+    }
+
+    if (!token) {
+      throw new BadRequestException('token missing');
     }
 
     try {
-      const payload = await this.jwtService.verifyAccessToken(authHeader);
-      request.user = payload;
+      const { sub: id, ...user } =
+        await this.jwtService.verifyAccessToken(token);
+      request.user = { id, ...user };
     } catch (error) {
       if (error instanceof TokenExpiredError) {
         throw new UnauthorizedException('token expired');
       }
-      throw new UnauthorizedException('invalid token');
+      if (error instanceof JsonWebTokenError) {
+        throw new UnauthorizedException('invalid token');
+      }
+      throw error;
     }
 
     return true;

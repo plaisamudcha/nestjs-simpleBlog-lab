@@ -2,15 +2,15 @@ import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
 import { AuthService } from './services/auth.service';
 import { RegisterDto } from './dtos/register.dto';
 import { LoginDto } from './dtos/login.dto';
-import { Public } from 'src/common/decorators/auth.decorator';
+import { Public } from 'src/common/decorators/guard.decorator';
 
-@Public()
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   // Best Practices: Do not impleement logic in controllers, delegate to services
 
+  @Public()
   @Post('register')
   async register(
     @Body() registerBody: RegisterDto
@@ -19,6 +19,7 @@ export class AuthController {
     return { message: 'User registered successfully' };
   }
 
+  @Public()
   @HttpCode(HttpStatus.OK)
   @Post('login')
   async login(@Body() loginBody: LoginDto) {
