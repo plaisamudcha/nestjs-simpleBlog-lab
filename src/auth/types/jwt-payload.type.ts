@@ -1,6 +1,7 @@
 import { UserRole } from 'src/common/types/role.type';
 
-export type UserToken = {
-  id: string;
+export type AccessJwtPayload = {
+  sub: string;
+  email: string;
   role: UserRole;
 };

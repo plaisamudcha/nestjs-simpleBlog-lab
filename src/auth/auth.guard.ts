@@ -5,9 +5,10 @@ import {
   UnauthorizedException
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { JwtService, TokenExpiredError } from '@nestjs/jwt';
+import { TokenExpiredError } from '@nestjs/jwt';
+
 import { Request } from 'express';
-import { UserToken } from 'src/users/types/userToken.type';
+import { JwtService } from './services/jwt.service';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -33,7 +34,7 @@ export class AuthGuard implements CanActivate {
     }
 
     try {
-      const payload = await this.jwtService.verifyAsync<UserToken>(authHeader);
+      const payload = await this.jwtService.verifyAccessToken(authHeader);
       request.user = payload;
     } catch (error) {
       if (error instanceof TokenExpiredError) {

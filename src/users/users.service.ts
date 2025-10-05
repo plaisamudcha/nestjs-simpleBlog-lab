@@ -7,8 +7,8 @@ import { PrismaClientKnownRequestError } from 'generated/prisma/runtime/library'
 export class UsersService {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async getUserByEmail(email: string) {
-    return await this.prismaService.users.findUnique({ where: { email } });
+  getUserByEmail(email: string) {
+    return this.prismaService.users.findUnique({ where: { email } });
   }
 
   async createUser(data: UserCreateInput): Promise<void> {
