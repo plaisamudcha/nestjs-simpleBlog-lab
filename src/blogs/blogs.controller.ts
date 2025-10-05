@@ -13,8 +13,8 @@ import { CommentsService } from 'src/comments/comments.service';
 import { Public, Roles } from 'src/common/decorators/guard.decorator';
 import { RoleGuard } from 'src/auth/role.guard';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
-import { CurrentUserDto } from 'src/auth/dtos/current-user.dto';
 import { CreateBlogDto } from './dtos/create-blog.dto';
+import { CurrentUserDto } from 'src/common/dtos/current-user.dto';
 
 @Controller('blogs')
 export class BlogsController {
@@ -51,10 +51,9 @@ export class BlogsController {
   @UseGuards(RoleGuard)
   @Roles('ADMIN')
   @Post()
-  createBlog(
-    @CurrentUser() user: CurrentUserDto,
-    @Body() data: CreateBlogDto
-  ) {}
+  createBlog(@CurrentUser() user: CurrentUserDto, @Body() data: CreateBlogDto) {
+    return this.blogsService.createBlog(user.id, data);
+  }
 
   @UseGuards(RoleGuard)
   @Roles('ADMIN')

@@ -1,7 +1,7 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/database/prisma.service';
 import { CreateBlogDto } from './dtos/create-blog.dto';
-import { PrismaClientKnownRequestError } from 'generated/prisma/runtime/library';
+import { Blogs } from 'generated/prisma';
 
 @Injectable()
 export class BlogsService {
@@ -15,30 +15,18 @@ export class BlogsService {
     return `this is get blog by id=${id} path`;
   }
 
-  async createBlog(id: string, data: CreateBlogDto) {
-    try {
-      await this.prismaService.blogs.create({
-        data: {
-          title: data.title,
-          content: data.content,
-          userId: id,
-          ...(data.tags && {
-            tags: {
-              create: data.tags.map((tagName) => ({
-                name: tagName
-              }))
-            }
-          })
+  createBlog(userId: string, data: CreateBlogDto): Promise<Blogs> {
+    const { tags, ...createBlog } = data;
+    return this.prismaService.blogs.create({
+      data: {
+        ...createBlog,
+        userId,
+        tags: {
+          createMany: { data: tags?.map((tag) => ({ name: tag })) ?? [] }
         }
-      });
-    } catch (error) {
-      if (
-        error instanceof PrismaClientKnownRequestError &&
-        error.code === 'P2003'
-      ) {
-        throw new BadRequestException('User does not exist');
-      }
-    }
+      },
+      include: { tags: true }
+    });
   }
 
   async updateBlog(id: string) {
